@@ -7,6 +7,7 @@ import General as gs
 
 def classes():
     #Civilization Class
+    #Race is the dominant race of the Civ
     #Name is the Name of the Civilization
     #Home Star is the coordinates indicating the capital of the Civ
     #Controlled is a list of tuples relating to coordinates of controlled stars
@@ -16,8 +17,9 @@ def classes():
     #Modifiers are currently active effects that modify the state of the civilization
     #Pantheon is the group of deities the civilization worships
     class Civ:
-        def __init__(self, name, home_star, controlled, star_prefs, traits, ruler, economy, policy, modifiers, pantheon):
+        def __init__(self, race, name, home_star, controlled, star_prefs, traits, ruler, economy, policy, modifiers, pantheon):
             self.name = str(name)
+            self.race = str(race)
             self.home_star = tuple(home_star)
             self.controlled = list(controlled)
             self.star_prefs = list(star_prefs)
@@ -71,14 +73,16 @@ def classes():
     #Population is the number of residents of the settlement
     #Characters are notable people who are either permanently or temporarily residing in the settlement
     #Modifiers are currently active effects on the state of the Settlement
+    #Owner is who currently controls the settlement
     class Settlement:
-        def __init__(self, name, leader, economy, population, characters, modifiers):
+        def __init__(self, name, leader, economy, population, characters, modifiers, owner):
             self.name = str(name)
             self.leader = str(leader)
             self.economy = list(economy)
             self.population = int(population)
             self.characters = list(characters)
             self.modifiers = list(modifiers)
+            self.owner = int(owner)
 
     #Deity Class
     #Name is the name of the Deity
@@ -107,7 +111,7 @@ def classes():
 
 
 #Creates a new settlement
-def new_settlement(star_info, settlement_info, char_info, Char, Settlement, race, coord, population = random.randint(50, 100)):
+def new_settlement(star_info, settlement_info, char_info, Char, Settlement, race, coord, owner, population = random.randint(50, 100)):
     
     #Connects name of settlement to name of resident star
     name = star_info[coord].name
@@ -117,10 +121,10 @@ def new_settlement(star_info, settlement_info, char_info, Char, Settlement, race
 
     #Generates development points for settlement
     #Prioritizes based on resources of star
-    econ = []
+    econ = [5, 5, 5, 5]
 
     #Creates a class and maps the coordinate of the settlement to the class
-    settlement_info[coord] = Settlement(name, len(char_info)-1, econ, population, [], [])
+    settlement_info[coord] = Settlement(name, len(char_info)-1, econ, population, [], [], owner)
     return settlement_info, char_info
 
 
@@ -166,11 +170,11 @@ def new_civ(star_info, civ_info, settlement_info, char_info, Civ, Settlement, Ch
     star_info[coord] = gs.star_discovered(race, star_info[coord])
 
     #Establishes a settlement in the home system
-    settlement_info, char_info = new_settlement(star_info, settlement_info, char_info, Char, Settlement, race, coord, population = 10_000)
+    settlement_info, char_info = new_settlement(star_info, settlement_info, char_info, Char, Settlement, race, coord, len(civ_info), population = 10_000)
 
     #Creates a ruler for the civilization
     char_info = new_character(char_info, Char, coord, race, type = 0, age = random.randint(31, 72))
-    ruler = char_info[len(char_info)-1]
+    ruler = len(char_info)-1
 
     #Generates Civilization Traits
     traits = [random.choice(gs.open_file('Data/Language/Traits.csv')[1]) for i in range(3)]
@@ -187,15 +191,19 @@ def new_civ(star_info, civ_info, settlement_info, char_info, Civ, Settlement, Ch
     economy = settlement_info[coord].economy
 
     #Creates new civ mapping its ID to the class
-    civ_info[len(civ_info)] = Civ(name, coord, [coord], race_preferences[race], traits, ruler, economy, 0, [], "")
+    civ_info[len(civ_info)] = Civ(name, race, coord, [coord], race_preferences[race], traits, ruler, economy, 0, [], "")
     return civ_info, settlement_info, char_info
 
+#Creates a new Deity
 def new_deity(deity_info, Deity, deity_data, n):
+    #Picks a random Domain for the Deity to rule
     domain = deity_data[n][0]
-    print(domain)
+
     name = f"{random.choice(deity_data[0])}, God of {domain}"
     while name in list(deity_info.keys()):
         name = f"{random.choice(deity_data[0])}, God of {domain}"
     traits = deity_data[n][1:]
+
+    #Writes Deity into the dictionary using the domain as a key
     deity_info[domain] = Deity(name, traits, 0, domain)
     return deity_info

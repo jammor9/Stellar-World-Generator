@@ -1,6 +1,15 @@
-with open('Saves/Solaris/World/Star_Data.csv') as r:
-    out_file = [line.strip("\n") for line in r.readlines()]
-for file in out_file[0].split(","):
-    print(file)
+import csv
 
-print(type(out_file[0].split(",")[5]))
+with open('Data/Events/Civ_Event_Weights.csv', encoding="utf8") as r:
+    cs = csv.reader(r, delimiter=";")
+    lines = [x for x in cs]
+
+fixed_a = []
+
+for i in range(len(lines)):
+    for j in range(len(lines[i])):
+        lines[i][j] = lines[i][j].split(",")
+        for k in range(len(lines[i][j])):
+            lines[i][j][k] = float(lines[i][j][k])
+
+        

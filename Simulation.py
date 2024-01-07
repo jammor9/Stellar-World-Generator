@@ -18,7 +18,7 @@ char_type = {0:"Leader",1:"Adventurer",2:"Scholar"}
 policy = {0:"Colonial Expansion", 1:"Military Conflict", 2:"Economic Development", 3:"Diplomatic Development"}
 
 #Base Program Function
-def start():
+def generate_world():
     #Reads in classes from Classes.py
     Civ, Char, Star, Settlement, Deity, Pantheon = hc.classes()
 
@@ -65,6 +65,6 @@ def grid_display(world):
     plt.show()
     return
 
-start()
+generate_world()
 
 print("Finished")
