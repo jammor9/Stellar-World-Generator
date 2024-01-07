@@ -148,3 +148,41 @@ def start_civ_generation(world, civ_info, settlement_info, star_info, char_info,
         civ_info, settlement_info, char_info = hc.new_civ(star_info, civ_info, settlement_info, char_info, Civ, Settlement, Char, coords, race_preferences, random.choice(races))
 
     return civ_info, settlement_info, char_info
+
+#Generates initial pantheons for the simulation
+def pantheon_generation(world, civ_info, pantheon_info, deity_info, Deity, Pantheon):
+    def new_pantheon(deity_info, pantheon_info, traits, names):
+        domain = random.choice(traits)
+        pantheon = []
+        for i in range(len(deity_info.keys())):
+            deity = list(deity_info.keys())[i]
+            if domain in deity_info[deity].traits:
+                pantheon.append(deity_info[deity].name)
+        
+        for name in names:
+            if name in pantheon_info.keys():
+                names.remove(name)
+
+        if len(names) == 0:
+            return pantheon_info
+        
+        name = f"The Pantheon of {random.choice(names)}"
+        if len(pantheon) > 0:
+            pantheon_info[domain] = Pantheon(name, domain, pantheon)
+            return pantheon_info
+        else:
+            return new_pantheon(deity_info, pantheon_info, traits, names)
+
+    deity_data = gs.open_file('Data/Language/Deities.csv')
+    traits = gs.open_file('Data/Language/Traits.csv')[0]
+    names = gs.open_file('Data/Language/Pantheons.csv')[0]
+
+    for i in range(len(deity_data)-1):
+        deity_info = hc.new_deity(deity_info, Deity, deity_data, i+1)
+
+    for i in range(5):
+        pantheon_info = new_pantheon(deity_info, pantheon_info, traits, names)
+
+    for civ in civ_info.values():
+        civ.pantheon = random.choice(list(pantheon_info.keys()))
+    return civ_info, pantheon_info, deity_info

@@ -20,10 +20,10 @@ policy = {0:"Colonial Expansion", 1:"Military Conflict", 2:"Economic Development
 #Base Program Function
 def start():
     #Reads in classes from Classes.py
-    Civ, Char, Star, Settlement = hc.classes()
+    Civ, Char, Star, Settlement, Deity, Pantheon = hc.classes()
 
     #Base Dictionaries that contain all data for the simulation
-    star_info, char_info, settlement_info, civ_info = {}, {}, {}, {}
+    star_info, char_info, settlement_info, civ_info, pantheon_info, deity_info = {}, {}, {}, {}, {}, {}
     
     print("Welcome to Solar WorldGen, starting generation...")
     size, star_ratio, civ_count, save_name = wg.settings()
@@ -38,10 +38,14 @@ def start():
 
     #Generates game star civs
     civ_info, settlement_info, char_info = wg.start_civ_generation(world, civ_info, settlement_info, star_info, char_info, Civ, Settlement, Char, civ_count)
+
+    #Generates game start pantheons and deities
+    civ_info, pantheon_info, deity_info = wg.pantheon_generation(world, civ_info, pantheon_info, deity_info, Deity, Pantheon)
     
     #Saves the simulation and displays resulting grid
-    save.save_data(world, star_info, civ_info, char_info, settlement_info, save_name)
+    save.save_data(world, star_info, civ_info, char_info, settlement_info, deity_info, pantheon_info, save_name)
     grid_display(world)
+
 
     return
 
