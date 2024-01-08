@@ -45,8 +45,7 @@ def generate_world():
     #Saves the simulation and displays resulting grid
     save.save_data(world, star_info, civ_info, char_info, settlement_info, deity_info, pantheon_info, save_name)
     grid_display(world)
-
-
+    
     return
 
 def grid_display(world):

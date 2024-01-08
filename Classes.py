@@ -16,8 +16,9 @@ def classes():
     #Ruler is the leader of the civ, their traits can influence Civ Traits
     #Modifiers are currently active effects that modify the state of the civilization
     #Pantheon is the group of deities the civilization worships
+    #Stability is how close a Civ is to internal conflict (-5 to 5)
     class Civ:
-        def __init__(self, race, name, home_star, controlled, star_prefs, traits, ruler, economy, policy, modifiers, pantheon):
+        def __init__(self, race, name, home_star, controlled, star_prefs, traits, ruler, economy, policy, modifiers, pantheon, stability):
             self.name = str(name)
             self.race = str(race)
             self.home_star = tuple(home_star)
@@ -29,6 +30,7 @@ def classes():
             self.policy = int(policy)
             self.modifiers = list(modifiers)
             self.pantheon = str(pantheon)
+            self.stability = int(stability)
         
     #Character Class
     #Name is the name of the character
@@ -159,8 +161,9 @@ def new_civ(star_info, civ_info, settlement_info, char_info, Civ, Settlement, Ch
         coord = coords[random.randint(0, len(coords))]
         for star in range(len(race_preferences[race])):
             if race_preferences[race][star].isdigit() and int(race_preferences[race][star]) == 1 and star_info[coord].variant == star:
-                Valid = True
-                break
+                if coord not in list(settlement_info.keys()):
+                    Valid = True
+                    break
 
         Checked_Coords.append(coord)
         if len(Checked_Coords) == len(coords) and Valid == False:
@@ -191,7 +194,7 @@ def new_civ(star_info, civ_info, settlement_info, char_info, Civ, Settlement, Ch
     economy = settlement_info[coord].economy
 
     #Creates new civ mapping its ID to the class
-    civ_info[len(civ_info)] = Civ(name, race, coord, [coord], race_preferences[race], traits, ruler, economy, 0, [], "")
+    civ_info[len(civ_info)] = Civ(name, race, coord, [coord], race_preferences[race], traits, ruler, economy, 0, [], "", 1)
     return civ_info, settlement_info, char_info
 
 #Creates a new Deity
