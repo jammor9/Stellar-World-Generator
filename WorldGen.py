@@ -57,13 +57,15 @@ def settings():
         civ_ratio = size ** 2 * 0.015
         
     civ_ratio, ratio = int(civ_ratio), int(ratio)
+
+    max_years = int(input("Please enter the number of years the simulation will run for: "))
     
     print(f"""SETTINGS
     SIZE: {size}
     STAR COUNT: {ratio}
     CIVILIZATION COUNT: {civ_ratio}""")
     
-    return size, ratio, civ_ratio, save_name
+    return size, ratio, civ_ratio, save_name, max_years
 
 
 #Generates the grid for the stars, weighting to decrease likelihood of golden, tyrian and arcane stars from
@@ -94,11 +96,11 @@ def star_trait_generation(world, s_class, save_name):
     def traits(star_type, star_weights):
         for s, weights in star_weights.items():
             if s == star_type:
-                star_traits = {"Fertility": weights[0] + round(random.uniform(low = -0.3, high=0.3),2),
-                              "Minerals": weights[1] + round(random.uniform(low = -0.3, high=0.3),2),
-                              "Savagery": weights[2] + round(random.uniform(low = -0.3, high=0.3),2),
-                              "Mana": weights[3] + round(random.uniform(low = -0.3, high=0.3),2),
-                              "Water": weights[4] + round(random.uniform(low = -0.3, high=0.3),2)}
+                star_traits = {"Fertility": int(weights[0] + round(random.uniform(low = -0.3, high=0.3),1) * 10),
+                              "Minerals": int(weights[1] + round(random.uniform(low = -0.3, high=0.3),1) * 10),
+                              "Savagery": int(weights[2] + round(random.uniform(low = -0.3, high=0.3),1) * 10),
+                              "Mana": int(weights[3] + round(random.uniform(low = -0.3, high=0.3),1) * 10),
+                              "Water": int(weights[4] + round(random.uniform(low = -0.3, high=0.3),1) * 10)}
             
         return star_traits
     

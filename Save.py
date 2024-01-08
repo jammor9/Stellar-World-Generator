@@ -13,7 +13,7 @@ def save_data(world, star_info, civ_info, char_info, settlement_info, deity_info
 
         def save_file(path, info):
             with open(path, 'w', newline="") as outfile:
-                r = csv.writer(outfile)
+                r = csv.writer(outfile, delimiter=";")
                 for i, data in info.items():
                     print(vars(data).values())
                     l = list(vars(data).values())
