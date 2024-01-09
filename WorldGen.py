@@ -35,11 +35,11 @@ def settings():
     """))
         
     if star_count == 1:
-        ratio = size ** 2 * 0.1
+        ratio = size ** 2 * 0.025
     elif star_count == 2:
-        ratio = size ** 2 * 0.2
+        ratio = size ** 2 * 0.05
     elif star_count == 3:
-        ratio = size ** 2 * 0.3
+        ratio = size ** 2 * 0.1
     
     #Determines number of civilizations generated
     while civs <= 0 or civs > 3:
@@ -50,11 +50,11 @@ def settings():
     """))
         
     if civs == 1:
-        civ_ratio = size ** 2 * 0.005
+        civ_ratio = size ** 2 * 0.0005
     elif civs == 2:
-        civ_ratio = size ** 2 * 0.01
+        civ_ratio = size ** 2 * 0.001
     elif civs == 3:
-        civ_ratio = size ** 2 * 0.015
+        civ_ratio = size ** 2 * 0.0015
         
     civ_ratio, ratio = int(civ_ratio), int(ratio)
 

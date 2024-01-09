@@ -4,6 +4,8 @@ import numpy as np
 import tkinter as tk
 from tkinter import ttk
 
+from PIL import Image
+
 import matplotlib.pyplot as plt
 from matplotlib import colors
 
@@ -51,6 +53,7 @@ def generate_world():
     #Saves the simulation and displays resulting grid
     #save.save_data(world, star_info, civ_info, char_info, settlement_info, deity_info, pantheon_info, save_name)
     tkinter_grid(world, len(world))
+    #display_image(world, size)
     
     return
 
@@ -70,28 +73,41 @@ def grid_display(world):
     plt.show()
     return
 
+#Creates a Tkinter Starmap
 def tkinter_grid(world, size):
+    #Calls in global dictionaries
     global star_color, star_names
 
+    #Inner Function to colour star cells
     def color_cell(cells, i, j, color="#3f4d25"):
-        cells[(i, j)].configure(background=color)
+        if color == "#000000":
+            cells[(i, j)].destroy()
+        else:
+            cells[(i, j)].configure(background=color)
 
+    #Creates basic window for Starmap
     window = tk.Tk()
-    window.geometry('1280x720')
+    window.geometry('750x750')
     window.title('Space')
+    window.configure(background="black")
 
     cells = {}
 
-    for row in range(9):
-        for column in range(9):
-            cell = tk.Frame(window, bg="white", highlightbackground="black",
-                            highlightcolor="black", highlightthickness=1,
-                            width = 50, height = 50, padx=3, pady=3)
-            cell.grid(row=row, column=column)
-            cells[(row, column)] = cell
+    #Creates a coordinate array of values from world which contain stars
+    ca = np.array(np.where(world!=0))
 
-    window.after(1000, color_cell, cells, 3, 4, '#5e5b55')
+    #Iterates through the values of the coordinate array
+    #Applies a colour to the values
+    for i in range(len(ca[0])):
+        row = ca[0][i]
+        column = ca[1][i]
+        cell = tk.Frame(window, bg="black", highlightbackground="black", highlightthickness=1,
+                                width = 3, height = 3)
+        cell.grid(row=row, column=column)
+        cells[(row, column)] = cell
+        window.after(1, color_cell, cells, row, column, star_color[world[row, column]])
 
+    #Calls the window
     window.mainloop()
 
 generate_world()
