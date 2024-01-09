@@ -73,24 +73,26 @@ def grid_display(world):
 def tkinter_grid(world, size):
     global star_color, star_names
 
-    root = tk.Tk()
+    def color_cell(cells, i, j, color="#3f4d25"):
+        cells[(i, j)].configure(background=color)
 
-    s = ttk.Style()
+    window = tk.Tk()
+    window.geometry('1280x720')
+    window.title('Space')
 
-    s.configure('window.TFrame', background = "#000000")
+    cells = {}
 
-    for i in range(len(star_color)):
-        s.configure(f'{star_names[i]}.TFrame', background = f'{star_color[i]}')
-    
-    mainFrame = ttk.Frame(root, width = size, height = size, style = 'window.TFrame')
+    for row in range(9):
+        for column in range(9):
+            cell = tk.Frame(window, bg="white", highlightbackground="black",
+                            highlightcolor="black", highlightthickness=1,
+                            width = 50, height = 50, padx=3, pady=3)
+            cell.grid(row=row, column=column)
+            cells[(row, column)] = cell
 
-    for x in range(size):
-        for y in range(size):
-            print("Writing:",x,y)
-            frame = ttk.Frame(mainFrame, width = 1, height = 1, style = f'{star_names[world[x, y]]}.TFrame')
-            frame.grid(row = x, column = y)
+    window.after(1000, color_cell, cells, 3, 4, '#5e5b55')
 
-    mainFrame.grid(row = 0, column = 0)
+    window.mainloop()
 
 generate_world()
 
