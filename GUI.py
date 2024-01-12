@@ -2,142 +2,95 @@ import pygame as pg
 from pygame.locals import *
 
 import numpy as np
-from numpy import random
 
 def load_gui(world, size):
 
-    file = 'Graphics/StarTiles.png'
-    TILE_SIZE = 16
+    tile_size = 16
+    screen_width = 1280
+    screen_height = 720
 
-    class Game:
-        W = size * TILE_SIZE
-        H = size * TILE_SIZE
-        SIZE = W, H
+    class Level:
+        def __init__(self, world, surface):
+            self.display_surface = surface
 
-        def __init__(self, tileset, size=(10, 20), rect=None):
-            pg.init()
-            self.screen = pg.display.set_mode(Game.SIZE)
-            pg.display.set_caption('Star Map')
-            self.running = True
+            terrain_layout = world
+            self.terrain_sprites = self.create_tile_group(terrain_layout, world)
 
-            self.size = size
-            self.tileset = tileset
-            self.map = np.zeros(size, dtype=int)
+        def create_tile_group(self,layout,type):
+            sprite_group = pg.sprite.Group()
+            
+            for row_i, row in enumerate(layout):
+                for col_i, col in enumerate(row):
+                    if col != 0:
+                        x = col_i * tile_size
+                        y = row_i * tile_size
 
-            h, w = self.size
-            self.image = pg.Surface((TILE_SIZE*w, TILE_SIZE*h))
-            if rect:
-                self.rect = pg.Rect(rect)
-            else:
-                self.rect = self.image.get_rect()
+                        if type == world:
+                            terrain_tile_list = import_cut_graphics('Graphics/StarTiles.png', tile_size)
+                            tile_surface = terrain_tile_list[int(col)]
+                            sprite = StaticTile(tile_size,x,y,tile_surface)
+                            sprite_group.add(sprite)
+            print(sprite_group)
+            return sprite_group
 
         def run(self):
-            while self.running:
-                for event in pg.event.get():
-                    if event.type == QUIT:
-                        self.running = False
-                    elif event.type == KEYDOWN:
-                        if event.key == K_1:
-                            self.load_image(file)
-                        elif event.key == K_r:
-                            self.set_random()
-                        elif event.key == K_ESCAPE:
-                            pg.quit()
-                            
+            self.terrain_sprites.draw(self.display_surface)
+            self.terrain_sprites.update(1)
 
-            pg.quit()
+    class Tile(pg.sprite.Sprite):
+        def __init__(self, size, x, y):
+            super().__init__()
+            self.image = pg.Surface((size, size))
+            self.rect = self.image.get_rect(topleft = (x,y))
 
-        def load_image(self, file):
-            self.file = file
-            self.image = pg.image.load(file)
-            self.rect = self.image.get_rect()
+        def update(self, shift):
+            for event in pg.event.get():
+                if event.type == pg.KEYDOWN:
+                    if event.key == K_UP:
+                        self.rect.y += 1
 
-            self.screen = pg.display.set_mode(self.rect.size)
-            pg.display.set_caption(f'size{self.rect.size}')
-            self.screen.blit(self.image, self.rect)
-            pg.display.update()
+    class StaticTile(Tile):
+        def __init__(self, size, x, y, surface):
+            super().__init__(size, x, y)
+            self.image = surface
 
-        def set_zero(self):
-            self.map = np.zeros(self.size, dtype=int)
-            print(self.map)
-            print(self.map.shape())
-            self.render()
+    screen = pg.display.set_mode((screen_width, screen_height))
+    clock = pg.time.Clock()
+    level = Level(world, screen)
 
-        def set_random(self):
-            n = len(self.tileset.tiles)
-            self.map = random.randint(n, size=self.size)
-            print(self.map)
-            self.render()
+    #Imports the StarMap Tiles
+    star_map = import_cut_graphics('Graphics/StarTiles.png', tile_size)
 
-        def render(self):
-            m, n = self.map.shape
-            for i in range(m):
-                for j in range(n):
-                    tile = self.tileset.tiles[self.map[i, j]]
-                    self.image.blit(tile, (j*TILE_SIZE, i*TILE_SIZE))
+    while True:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+            elif event.type == pg.KEYDOWN:
+                if K_ESCAPE:
+                    pg.quit()
 
-    class Tileset:
-        def __init__(self, file, size=(TILE_SIZE, TILE_SIZE), margin=0, spacing=0):
-            self.file = file
-            self.size = size
-            self.margin = margin
-            self.spacing = spacing
-            self.image = pg.image.load(file)
-            self.rect = self.image.get_rect()
-            self.tiles = []
-            self.load()
+        
+        screen.fill('black')
+        level.run()
 
-        def load(self):
-            self.tiles = []
-            x0 = y0 = self.margin
-            w, h = self.rect.size
-            dx = self.size[0] + self.spacing
-            dy = self.size[1] + self.spacing
+        pg.display.update()
+        clock.tick(60)
 
-            for x in range(x0, w, dx):
-                for y in range(y0, h, dy):
-                    tile = pg.surface(self.size)
-                    tile.blit(self.image, (0, 0), (x, y, *self.size))
-                    self.tiles.append(tile)
+#Imports spritesheets
+def import_cut_graphics(path, tile_size):
+    surface = pg.image.load(path).convert_alpha()
+    tile_num_x = int(surface.get_size()[0] / tile_size)
+    tile_num_y = int(surface.get_size()[1] / tile_size)
 
-        def __str__(self):
-            return f'{self.__class__.__name__} file:{self.file} tile:{self.size}'
+    cut_tiles = []
 
-    class TileMap:
-        def __init__(self, tileset, size=(10, 20), rect=None):
-            self.size = size
-            self.tileset = tileset
-            self.map = np.zeros(size, dtype=int)
+    for row in range(tile_num_y):
+        for col in range(tile_num_x):
+            x = col * tile_size
+            y = row * tile_size
+            new_surf = pg.Surface((tile_size, tile_size))
+            new_surf.blit(surface,(0,0),pg.Rect(x,y,tile_size,tile_size))
+            cut_tiles.append(new_surf)
 
-            h, w = self.size
-            self.image = pg.Surface((TILE_SIZE*w, TILE_SIZE*h))
-            if rect:
-                self.rect = pg.Rect(rect)
-            else:
-                self.rect = self.image.get_rect()
+    return cut_tiles
 
-        def render(self):
-            m, n = self.map.shape
-            for i in range(m):
-                for j in range(n):
-                    tile = self.tileset.tiles[self.map[i, j]]
-                    self.image.blit(tile, (j*TILE_SIZE, i*TILE_SIZE))
-
-        def set_zero(self):
-            self.map = np.zeros(self.size, dtype=int)
-            print(self.map)
-            print(self.map.shape())
-            self.render()
-
-        def set_random(self):
-            n = len(self.tileset.tiles)
-            self.map = random.randint(n, size=self.size)
-            print(self.map)
-            self.render()
-
-        def __str__(self):
-            return f'{self.__class__.__name__} {self.size}'
-
-
-    game = Game()
-    game.run()
